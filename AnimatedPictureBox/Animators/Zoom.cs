@@ -1,0 +1,215 @@
+﻿// ***********************************************************************
+// Assembly         : Zeroit.Framework.PictureBox
+// Author           : ZEROIT
+// Created          : 12-20-2018
+//
+// Last Modified By : ZEROIT
+// Last Modified On : 12-20-2018
+// ***********************************************************************
+// <copyright file="Zoom.cs" company="Zeroit Dev Technologies">
+//     Copyright © Zeroit Dev Technologies  2017. All Rights Reserved.
+// </copyright>
+// <summary></summary>
+// ***********************************************************************
+#region Imports
+
+using System;
+using System.ComponentModel;
+//using System.Windows.Forms.VisualStyles;
+using Zeroit.Framework.PictureBox.Helpers.Animations;
+
+#endregion
+
+namespace Zeroit.Framework.PictureBox
+{
+    #region ExtendedPictureBoxZoomAnimator
+    /// <summary>
+    /// Class inheriting <see cref="Animations.AnimatorBase" /> to animate the
+    /// <see cref="ExtendedPictureBoxLib.ExtendedPictureBox.Zoom" /> of a
+    /// <see cref="ExtendedPictureBox" />.
+    /// </summary>
+    /// <seealso cref="Animations.AnimatorBase" />
+	public class ZeroitEXPicBoxZoomAnimator : Helpers.Animations.AnimatorBase
+    {
+        #region Fields
+
+        /// <summary>
+        /// The default zoom
+        /// </summary>
+        private const float DEFAULT_ZOOM = 100f;
+
+        /// <summary>
+        /// The extended picture box
+        /// </summary>
+        private ZeroitEXPicBox _extendedPictureBox;
+        /// <summary>
+        /// The start zoom
+        /// </summary>
+        private float _startZoom;
+        /// <summary>
+        /// The end zoom
+        /// </summary>
+        private float _endZoom;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="container">Container the new instance should be added to.</param>
+        public ZeroitEXPicBoxZoomAnimator(IContainer container) : base(container)
+        {
+            Initialize();
+        }
+
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        public ZeroitEXPicBoxZoomAnimator()
+        {
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initializes this instance.
+        /// </summary>
+        private void Initialize()
+        {
+            _startZoom = DEFAULT_ZOOM;
+            _endZoom = DEFAULT_ZOOM;
+        }
+
+        #endregion
+
+        #region Public interface
+
+        /// <summary>
+        /// Gets or sets the starting zoom for the animation.
+        /// </summary>
+        /// <value>The start zoom.</value>
+        [Category("Appearance"), DefaultValue(DEFAULT_ZOOM)]
+        [Browsable(true)]
+        [Description("Gets or sets the starting zoom for the animation.")]
+        public float StartZoom
+        {
+            get { return _startZoom; }
+            set
+            {
+                if (_startZoom == value)
+                    return;
+
+                _startZoom = value;
+
+                OnStartValueChanged(EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the ending zoom for the animation.
+        /// </summary>
+        /// <value>The end zoom.</value>
+        [Category("Appearance"), DefaultValue(DEFAULT_ZOOM)]
+        [Browsable(true)]
+        [Description("Gets or sets the ending zoom for the animation.")]
+        public float EndZoom
+        {
+            get { return _endZoom; }
+            set
+            {
+                if (_endZoom == value)
+                    return;
+
+                _endZoom = value;
+
+                OnEndValueChanged(EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ExtendedPictureBox" /> which
+        /// <see cref="ExtendedPictureBoxLib.ExtendedPictureBox.Zoom" /> should be animated.
+        /// </summary>
+        /// <value>The extended picture box.</value>
+        [Browsable(true), DefaultValue(null), Category("Behavior")]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        [Description("Gets or sets which ExtendedPictureBox should be animated.")]
+        public ZeroitEXPicBox ExtendedPictureBox
+        {
+            get { return _extendedPictureBox; }
+            set
+            {
+                if (_extendedPictureBox == value)
+                    return;
+
+                if (_extendedPictureBox != null)
+                    _extendedPictureBox.ZoomChanged -= new EventHandler(OnCurrentValueChanged);
+
+                _extendedPictureBox = value;
+
+                if (_extendedPictureBox != null)
+                    _extendedPictureBox.ZoomChanged += new EventHandler(OnCurrentValueChanged);
+
+                base.ResetValues();
+            }
+        }
+
+        #endregion
+
+        #region Overridden from AnimatorBase
+
+        /// <summary>
+        /// Gets or sets the currently shown value.
+        /// </summary>
+        /// <value>The current value internal.</value>
+        protected override object CurrentValueInternal
+        {
+            get { return _extendedPictureBox == null ? (float)0 : _extendedPictureBox.Zoom; }
+            set
+            {
+                if (_extendedPictureBox != null)
+                    _extendedPictureBox.Zoom = (float)value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the starting value for the animation.
+        /// </summary>
+        /// <value>The start value.</value>
+        public override object StartValue
+        {
+            get { return StartZoom; }
+            set { StartZoom = (float)value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the ending value for the animation.
+        /// </summary>
+        /// <value>The end value.</value>
+        public override object EndValue
+        {
+            get { return EndZoom; }
+            set { EndZoom = (float)value; }
+        }
+
+        /// <summary>
+        /// Calculates an interpolated value between <see cref="StartValue" /> and
+        /// <see cref="EndValue" /> for a given step in %.
+        /// Giving 0 will return the <see cref="StartValue" />.
+        /// Giving 100 will return the <see cref="EndValue" />.
+        /// </summary>
+        /// <param name="step">Animation step in %</param>
+        /// <returns>Interpolated value for the given step.</returns>
+        protected override object GetValueForStep(double step)
+        {
+            float result = (float)InterpolateDoubleValues(_startZoom, _endZoom, step);
+            return (float)InterpolateDoubleValues(_startZoom, _endZoom, step);
+        }
+
+        #endregion
+    }
+    #endregion
+
+
+}
